@@ -13,9 +13,11 @@ import type { Student } from '../utils/types';
 
 interface StudentListProps {
   students: Student[];
+  onEdit: (student: Student) => void;
+  onDelete: (id: string) => void;
 }
 
-const StudentList: React.FC<StudentListProps> = ({ students }) => {
+const StudentList: React.FC<StudentListProps> = ({ students, onEdit, onDelete }) => {
   return (
     <TableContainer>
       <Table>
@@ -42,10 +44,10 @@ const StudentList: React.FC<StudentListProps> = ({ students }) => {
                   <Button variant="contained" color="error">
                     Xem
                   </Button>
-                  <Button variant="contained" color="warning">
+                  <Button variant="contained" color="warning" onClick={() => onEdit(s)}>
                     Sửa
                   </Button>
-                  <Button variant="contained" color="success" onClick={()=>confirm("Xóa mẹ đi")}>
+                  <Button variant="contained" color="success" onClick={()=>onDelete(s.id)}>
                     Xóa
                   </Button>
                 </div>

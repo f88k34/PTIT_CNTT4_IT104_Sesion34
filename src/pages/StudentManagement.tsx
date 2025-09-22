@@ -2,40 +2,73 @@ import type { Student } from '../utils/types';
 import StudentForm from '../components/StudentForm';
 import StudentList from '../components/StudentList';
 import Toolbar from '../components/Toolbar';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 const StudentManagement = () => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const studentList = useSelector((store: any) => {
-    console.log(store);
-    return store.student;
-  });
-    
-  useEffect(() => {
-    setStudents(studentList);
-  }, []);
+  const studentList = useSelector((state: any) => state.student);
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
+
   const handleAddStudent = (student: Student) => {
-    setStudents([...students, student]);
+    dispatch({ type: 'ADD', payload: student });
     setIsFormOpen(false);
   };
-  const handleSearch = (keyword: string) => {
-    setStudents((prev) =>
-      prev.filter((s) => s.name.toLowerCase().includes(keyword.toLowerCase())),
-    );
+
+  const handleUpdateStudent = (student: Student) => {
+    dispatch({ type: 'UPDATE', payload: student });
+    setStudentToEdit(null);
+    setIsFormOpen(false);
   };
+
+  const handleDeleteStudent = (id: string) => {
+    if (studentToEdit && studentToEdit.id === id) {
+      handleCloseForm();
+    }
+    dispatch({ type: 'DELETE', payload: id });
+  };
+
+  const handleStartEdit = (student: Student) => {
+    setStudentToEdit(student);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setStudentToEdit(null);
+    setIsFormOpen(false);
+  };
+
+  const handleSearch = (keyword: string) => {
+    setSearchKeyword(keyword);
+  };
+
+  const filteredStudents = useMemo(() => {
+    if (!searchKeyword) {
+      return studentList;
+    }
+    return studentList.filter((student: Student) =>
+      student.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+  }, [studentList, searchKeyword]);
 
   return (
     <div className="flex gap-6 p-6">
       <div className="flex-1">
-        <Toolbar onSearch={handleSearch} onAdd={() => setIsFormOpen(true)} />
-        <StudentList students={students} />
+        <Toolbar
+          keyword={searchKeyword}
+          onSearch={handleSearch}
+          onAdd={() => setIsFormOpen(true)}
+        />
+        <StudentList students={filteredStudents} onEdit={handleStartEdit} onDelete={handleDeleteStudent} />
       </div>
       {isFormOpen && (
         <StudentForm
-          onSubmit={handleAddStudent}
-          onClose={() => setIsFormOpen(false)}
+          students={studentList}
+          initialData={studentToEdit}
+          onSubmit={studentToEdit ? handleUpdateStudent : handleAddStudent}
+          onClose={handleCloseForm}
         />
       )}
     </div>

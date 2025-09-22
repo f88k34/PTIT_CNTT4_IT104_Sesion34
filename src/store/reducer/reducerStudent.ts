@@ -13,14 +13,18 @@ const initialState:Student[] = [
     },
 ]
 
-const reducerStudent=(state=initialState,action:Action)=>{
-    switch(action.type){
-        case "ADD":
-
-        return state
-        default:
-            return state
-    
-    }
-}
+const reducerStudent = (state = initialState, action: Action) => {
+  switch (action.type) {
+    case 'ADD':
+      return [...state, action.payload];
+    case 'UPDATE':
+      return state.map((student) =>
+        student.id === action.payload.id ? action.payload : student
+      );
+    case 'DELETE':
+      return state.filter((student) => student.id !== action.payload);
+    default:
+      return state;
+  }
+};
 export default reducerStudent;

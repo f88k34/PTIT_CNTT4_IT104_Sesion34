@@ -3,11 +3,12 @@ export interface Student {
   name: string;
   age: number;
   gender: 'Nam' | 'Nữ';
-  birthday?: string;
-  hometown?: string;
-  address?: string;
+  birthday: string;
+  hometown: string;
+  address: string;
 }
- export interface Action{
-  type:string,
-  payload:Student
+
+export interface Action {
+  type: string;
+  payload: any;
 }
